@@ -107,6 +107,7 @@ export class ApiClient {
     to?: string;
     completed?: boolean;
     backlog?: boolean;
+    tagIds?: string[];
     sortBy?: "priority" | "position" | "createdAt";
     page?: number;
     limit?: number;
@@ -117,6 +118,7 @@ export class ApiClient {
       to: params?.to,
       completed: params?.completed,
       backlog: params?.backlog,
+      tagIds: params?.tagIds?.join(","),
       sortBy: params?.sortBy,
       page: params?.page,
       limit: params?.limit,
@@ -141,6 +143,26 @@ export class ApiClient {
 
   async reorderTasks(date: string | "backlog", taskIds: string[]) {
     return this.request<Task[]>("POST", "/tasks/reorder", { date, taskIds });
+  }
+
+  async listTags() {
+    return this.request<TaskTag[]>("GET", "/tags");
+  }
+
+  async createTag(input: Pick<TaskTag, "name" | "color">) {
+    return this.request<TaskTag>("POST", "/tags", input);
+  }
+
+  async updateTag(id: string, input: Partial<Pick<TaskTag, "name" | "color">>) {
+    return this.request<TaskTag>("PATCH", `/tags/${id}`, input);
+  }
+
+  async deleteTag(id: string) {
+    return this.request<{ id: string }>("DELETE", `/tags/${id}`);
+  }
+
+  async assignTaskTags(input: { taskIds: string[]; tagIds: string[]; operation: "add" | "remove" }) {
+    return this.request<{ changed: number }>("POST", "/tags/assign", input);
   }
 
   // Subtasks
@@ -406,7 +428,14 @@ export interface UpdateIdeaSubtaskInput {
   position?: number;
 }
 
+export interface TaskTag {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export interface Task {
+  tags?: TaskTag[];
   id: string;
   userId: string;
   title: string;

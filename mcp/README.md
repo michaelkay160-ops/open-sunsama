@@ -208,7 +208,7 @@ If you prefer Bun over Node.js:
 
 | Tool | Description |
 |------|-------------|
-| `list_tasks` | List tasks with filters (date, range, completion status, backlog) |
+| `list_tasks` | List tasks by date, range, completion status, backlog, or all selected tag IDs |
 | `get_task` | Get detailed information about a specific task |
 | `create_task` | Create a new task with title, notes, priority, schedule |
 | `update_task` | Update task fields (title, notes, priority, schedule) |
@@ -217,6 +217,18 @@ If you prefer Bun over Node.js:
 | `delete_task` | Permanently delete a task |
 | `schedule_task` | Move a task to a specific date or backlog |
 | `reorder_tasks` | Reorder tasks within a date |
+
+### Task Tags
+
+| Tool | Description |
+|------|-------------|
+| `list_tags` | List the account's task tags with their IDs and colors |
+| `create_tag` | Create a named tag with a six-digit hex color |
+| `update_tag` | Rename or recolor a tag |
+| `delete_tag` | Delete a tag and remove its assignments |
+| `assign_task_tags` | Add or remove up to 50 tags across up to 200 tasks in one transaction |
+
+Use the tag IDs from `list_tags` in `assign_task_tags` or the `tagIds` filter in `list_tasks`.
 
 ### Subtask Management
 

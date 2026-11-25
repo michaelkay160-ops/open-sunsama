@@ -1,0 +1,17 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "hosted-api",
+  "description": "Upstream API and updates for the official desktop app",
+  "windows": ["main"],
+  "permissions": [
+    "updater:default",
+    "process:allow-restart",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "https://api.opensunsama.com/**" },
+        { "url": "wss://api.opensunsama.com/**" }
+      ]
+    }
+  ]
+}

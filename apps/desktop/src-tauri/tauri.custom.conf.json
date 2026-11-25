@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Open Sunsama Custom",
+  "mainBinaryName": "open-sunsama-custom",
+  "identifier": "app.opensunsama.custom.desktop",
+  "build": {
+    "beforeDevCommand": "bun scripts/custom-frontend.ts dev",
+    "devUrl": "http://localhost:3207",
+    "beforeBuildCommand": "bun scripts/custom-frontend.ts build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Open Sunsama Custom",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "center": true
+      }
+    ],
+    "security": {
+      "capabilities": ["default", "local-api"]
+    }
+  },
+  "bundle": {
+    "createUpdaterArtifacts": false
+  },
+  "plugins": {
+    "updater": null
+  }
+}

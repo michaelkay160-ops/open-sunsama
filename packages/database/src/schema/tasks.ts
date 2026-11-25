@@ -65,6 +65,7 @@ export const tasks = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
+    uniqueIndex("tasks_user_id_id_idx").on(table.userId, table.id),
     // Index for rollover queries - finding incomplete tasks by user and scheduled date
     index("tasks_user_scheduled_incomplete_idx")
       .on(table.userId, table.scheduledDate)

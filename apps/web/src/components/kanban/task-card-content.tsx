@@ -21,6 +21,7 @@ import { EDIT_ESTIMATE_EVENT } from "@/components/task-shortcuts-handler";
 import { PRIORITY_META } from "@/components/ui/priority-badge";
 import { PriorityMenu } from "./priority-menu";
 import { TaskSourceChips } from "./task-source-chip";
+import { TaskTagChips } from "@/components/tags/task-tag-chips";
 
 interface TaskCardContentProps {
   task: Task;
@@ -298,6 +299,9 @@ export function TaskCardContent({
         <div className="pl-6">
           <TaskSourceChips links={task.externalLinks} />
         </div>
+      )}
+      {!!task.tags?.length && (
+        <div className="pl-6"><TaskTagChips tags={task.tags} /></div>
       )}
     </div>
   );

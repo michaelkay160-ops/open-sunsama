@@ -261,3 +261,4 @@ export type {
 
 // Re-export relation helpers for query building
 export { relations } from "drizzle-orm";
+export * from "./tags";

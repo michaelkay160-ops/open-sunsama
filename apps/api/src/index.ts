@@ -14,6 +14,7 @@ import { logger } from "hono/logger";
 import { errorHandler, notFoundHandler } from "./middleware/error.js";
 import { authRouter } from "./routes/auth.js";
 import { tasksRouter } from "./routes/tasks.js";
+import { tagsRouter } from "./routes/tags.js";
 import { subtasksRouter } from "./routes/subtasks.js";
 import { timeBlocksRouter } from "./routes/time-blocks.js";
 import { workSessionsRouter } from "./routes/work-sessions.js";
@@ -181,6 +182,7 @@ app.get("/", (c) => {
 // Mount routes
 app.route("/auth", authRouter);
 app.route("/tasks", tasksRouter);
+app.route("/tags", tagsRouter);
 app.route("/tasks", subtasksRouter); // Subtask routes under /tasks/:taskId/subtasks
 app.route("/time-blocks", timeBlocksRouter);
 app.route("/work-sessions", workSessionsRouter);

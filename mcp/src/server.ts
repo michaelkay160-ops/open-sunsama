@@ -9,6 +9,7 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { ApiClient, type ApiClientConfig } from "./lib/api-client.js";
 import { registerTaskTools } from "./tools/tasks.js";
+import { registerTagTools } from "./tools/tags.js";
 import { registerTimeBlockTools } from "./tools/time-blocks.js";
 import { registerSubtaskTools } from "./tools/subtasks.js";
 import { registerUserTools } from "./tools/user.js";
@@ -38,6 +39,7 @@ export function createOpenSunsamaMcpServer(
   const server = new McpServer(MCP_SERVER_INFO, { instructions: INSTRUCTIONS });
 
   registerTaskTools(server, apiClient);
+  registerTagTools(server, apiClient);
   registerTimeBlockTools(server, apiClient);
   registerSubtaskTools(server, apiClient);
   registerCalendarEventTools(server, apiClient);

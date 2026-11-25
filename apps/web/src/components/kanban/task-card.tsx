@@ -13,6 +13,7 @@ interface TaskCardProps {
   task: Task;
   onSelect: (task: Task) => void;
   isDragging?: boolean;
+  dragDisabled?: boolean;
   /** Start of the task's earliest time block that day, shown on the card. */
   scheduledTime?: Date | string | null;
   /** The time is a projection, not a block on the calendar. */
@@ -27,6 +28,7 @@ export function SortableTaskCard({
   task,
   onSelect,
   isDragging: externalDragging,
+  dragDisabled,
   scheduledTime,
   timeIsProjected,
 }: TaskCardProps) {
@@ -66,6 +68,7 @@ export function SortableTaskCard({
     index,
   } = useSortable({
     id: task.id,
+    disabled: dragDisabled ? { draggable: true, droppable: true } : undefined,
     data: {
       type: "task",
       task,

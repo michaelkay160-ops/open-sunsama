@@ -49,6 +49,9 @@ export type {
   ReorderTasksInput,
   MoveTaskInput,
   TaskFilterInput,
+  TaskTag,
+  TagInput,
+  TaskTagAssignment,
   TaskStats,
   TaskWithMeta,
 } from "./task.js";

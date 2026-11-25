@@ -54,6 +54,7 @@ function writeTaskToCaches(qc: QueryClient, task: Task) {
 /** Refetch the task-related caches after an undo/redo applies a raw change. */
 function invalidateTaskCaches(qc: QueryClient) {
   qc.invalidateQueries({ queryKey: taskKeys.lists() });
+  qc.invalidateQueries({ queryKey: taskKeys.tagViews() });
   qc.invalidateQueries({ queryKey: taskKeys.rangeAll() });
   qc.invalidateQueries({ queryKey: ["tasks", "search", "infinite"] });
   qc.invalidateQueries({ queryKey: timeBlockKeys.lists() });

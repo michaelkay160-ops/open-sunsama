@@ -4,6 +4,7 @@
 
 import { z } from 'zod';
 import { uuidSchema, dateSchema } from '@open-sunsama/utils';
+import { tagIdsSchema } from './tags.js';
 
 /**
  * Priority levels for tasks
@@ -60,6 +61,7 @@ export const taskFilterSchema = z.object({
   backlog: z.enum(['true', 'false']).optional(),
   priority: prioritySchema.optional(),
   sortBy: sortBySchema.optional(),
+  tagIds: z.string().transform((value) => value.split(',')).pipe(tagIdsSchema).optional(),
   page: z.coerce.number().int().min(1).default(1),
   // Must stay >= RANGE_FETCH_LIMIT in apps/web/src/hooks/useKanbanRangePrefetch.ts,
   // which asks for a whole visible month in one call. When this cap was

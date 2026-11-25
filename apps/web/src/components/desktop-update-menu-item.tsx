@@ -9,11 +9,11 @@
 
 import * as React from "react";
 import { RefreshCw } from "lucide-react";
-import { isDesktop } from "@/lib/desktop";
 import {
   getAppVersion,
   checkForUpdate,
   downloadAndInstallUpdate,
+  supportsDesktopUpdates,
 } from "@/lib/updater";
 import { toast } from "@/hooks/use-toast";
 import { DropdownMenuItem, ToastAction } from "@/components/ui";
@@ -23,11 +23,11 @@ export function DesktopUpdateMenuItem() {
   const [checking, setChecking] = React.useState(false);
 
   React.useEffect(() => {
-    if (!isDesktop()) return;
+    if (!supportsDesktopUpdates()) return;
     void getAppVersion().then(setVersion);
   }, []);
 
-  if (!isDesktop()) return null;
+  if (!supportsDesktopUpdates()) return null;
 
   const handleCheck = async (event: Event) => {
     // Keep the dropdown from closing so the spinner stays visible.

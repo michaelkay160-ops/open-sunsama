@@ -19,6 +19,10 @@ export interface UpdateProgress {
   downloaded: number;
 }
 
+export function supportsDesktopUpdates(): boolean {
+  return isDesktop() && import.meta.env.VITE_DISABLE_DESKTOP_UPDATES !== 'true';
+}
+
 /**
  * Get the running app's version (from the Tauri bundle).
  * Returns null when not running in the desktop app.
@@ -35,7 +39,7 @@ export async function getAppVersion(): Promise<string | null> {
  * Returns update info if available, null otherwise
  */
 export async function checkForUpdate(): Promise<UpdateInfo | null> {
-  if (!isDesktop()) return null;
+  if (!supportsDesktopUpdates()) return null;
 
   const { check } = await import('@tauri-apps/plugin-updater');
   const update = await check();
@@ -56,7 +60,7 @@ export async function checkForUpdate(): Promise<UpdateInfo | null> {
 export async function downloadAndInstallUpdate(
   onProgress?: (progress: UpdateProgress) => void
 ): Promise<void> {
-  if (!isDesktop()) return;
+  if (!supportsDesktopUpdates()) return;
 
   const { check } = await import('@tauri-apps/plugin-updater');
   const { relaunch } = await import('@tauri-apps/plugin-process');

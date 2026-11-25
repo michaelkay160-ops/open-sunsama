@@ -6,10 +6,10 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { isDesktop } from '@/lib/desktop';
 import {
   checkForUpdate,
   downloadAndInstallUpdate,
+  supportsDesktopUpdates,
   type UpdateInfo,
   type UpdateProgress,
 } from '@/lib/updater';
@@ -35,7 +35,7 @@ export function useAppUpdate(): AppUpdateState {
   const hasCheckedRef = useRef(false);
 
   const doCheck = useCallback(async () => {
-    if (!isDesktop()) return;
+    if (!supportsDesktopUpdates()) return;
 
     setStatus('checking');
     setError(null);
@@ -56,7 +56,7 @@ export function useAppUpdate(): AppUpdateState {
   }, []);
 
   const installUpdate = useCallback(async () => {
-    if (!isDesktop()) return;
+    if (!supportsDesktopUpdates()) return;
 
     setStatus('downloading');
     setProgress(null);

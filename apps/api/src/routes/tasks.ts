@@ -18,6 +18,7 @@ import {
   tasks,
   subtasks,
   taskExternalLinks,
+  taskTags,
   sql,
   notificationPreferences,
 } from "@open-sunsama/database";
@@ -31,6 +32,7 @@ import {
   reorderTasksSchema,
 } from "../validation/tasks.js";
 import { publishEvent } from "../lib/websocket/index.js";
+import { withTaskTags } from "../lib/task-tags.js";
 import { stopTimerFields } from "../lib/timer.js";
 import {
   startTaskTimer,
@@ -72,6 +74,14 @@ tasksRouter.get(
     else if (filters.backlog === "false")
       conditions.push(isNotNull(tasks.scheduledDate));
     if (filters.priority) conditions.push(eq(tasks.priority, filters.priority));
+    for (const tagId of filters.tagIds ?? []) {
+      conditions.push(sql`EXISTS (
+        SELECT 1 FROM ${taskTags}
+        WHERE ${taskTags.userId} = ${tasks.userId}
+          AND ${taskTags.taskId} = ${tasks.id}
+          AND ${taskTags.tagId} = ${tagId}
+      )`);
+    }
     if (filters.search) {
       // Every whitespace-separated term must appear in the title or the notes,
       // so "web analytics" matches a title where the words aren't adjacent.
@@ -177,7 +187,7 @@ tasksRouter.get(
 
     return c.json({
       success: true,
-      data: withLinks,
+      data: await withTaskTags(db, userId, withLinks),
       meta: {
         page: filters.page,
         limit: filters.limit,
@@ -236,7 +246,7 @@ tasksRouter.post(
       });
     }
 
-    return c.json({ success: true, data: newTask }, 201);
+    return c.json({ success: true, data: { ...newTask, tags: [] } }, 201);
   }
 );
 
@@ -331,7 +341,8 @@ tasksRouter.get(
       .from(taskExternalLinks)
       .where(eq(taskExternalLinks.taskId, id));
 
-    return c.json({ success: true, data: { ...task, externalLinks: links } });
+    const [taggedTask] = await withTaskTags(db, userId, [{ ...task, externalLinks: links }]);
+    return c.json({ success: true, data: taggedTask });
   }
 );
 
@@ -429,7 +440,8 @@ tasksRouter.patch(
         });
       }
 
-      return c.json({ success: true, data: updatedTask });
+      const [taggedTask] = await withTaskTags(db, userId, updatedTask ? [updatedTask] : []);
+      return c.json({ success: true, data: taggedTask });
     });
   }
 );
@@ -569,7 +581,8 @@ tasksRouter.post(
         });
       }
 
-      return c.json({ success: true, data: updatedTask });
+      const [taggedTask] = await withTaskTags(db, userId, updatedTask ? [updatedTask] : []);
+      return c.json({ success: true, data: taggedTask });
     });
   }
 );
@@ -605,7 +618,8 @@ tasksRouter.post(
       });
     }
 
-    return c.json({ success: true, data: updatedTask });
+    const [taggedTask] = await withTaskTags(db, userId, updatedTask ? [updatedTask] : []);
+    return c.json({ success: true, data: taggedTask });
   }
 );
 
@@ -664,7 +678,7 @@ tasksRouter.post(
 
     return c.json({
       success: true,
-      data: updatedTasks,
+      data: await withTaskTags(db, userId, updatedTasks),
       message: "Tasks reordered successfully",
     });
   }

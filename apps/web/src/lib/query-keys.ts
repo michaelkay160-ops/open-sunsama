@@ -44,7 +44,10 @@ export const taskKeys = {
   rangeAll: () => [...taskKeys.all, "range"] as const,
   range: (from: string, to: string) =>
     [...taskKeys.rangeAll(), { from, to }] as const,
+  tagViews: () => [...taskKeys.all, "tag-views"] as const,
 };
+
+export const tagKeys = { all: ["tags"] as const };
 
 export const timerKeys = {
   active: () => ["tasks", "timer", "active"] as const,

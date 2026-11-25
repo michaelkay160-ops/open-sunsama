@@ -9,6 +9,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import {
   taskKeys,
+  tagKeys,
   timerKeys,
   timeBlockKeys,
   workSessionKeys,
@@ -142,12 +143,17 @@ function handleWebSocketEvent(
   batcher: InvalidationBatcher
 ): void {
   switch (event.type) {
+    case "tags:changed":
+      batcher.schedule(taskKeys.all);
+      batcher.schedule(tagKeys.all);
+      break;
     case "task:created":
     case "task:updated":
     case "task:deleted":
     case "task:completed":
     case "task:reordered":
       batcher.schedule(taskKeys.lists());
+      batcher.schedule(taskKeys.tagViews());
       // The kanban range prefetch lives outside lists(); refresh it too.
       batcher.schedule(taskKeys.rangeAll());
       batcher.schedule(["tasks", "search", "infinite"]);

@@ -11,6 +11,21 @@ import type { TaskExternalLink } from "./integration.js";
  */
 export type TaskPriority = "P0" | "P1" | "P2" | "P3";
 
+export interface TagInput {
+  name: string;
+  color: string;
+}
+
+export interface TaskTag extends TagInput {
+  id: string;
+}
+
+export interface TaskTagAssignment {
+  taskIds: string[];
+  tagIds: string[];
+  operation: "add" | "remove";
+}
+
 /**
  * Represents a task in the Open Sunsama system.
  * Tasks are the core productivity unit that users create, schedule, and complete.
@@ -102,6 +117,9 @@ export interface Task {
    * present on endpoints that ask for links.
    */
   externalLinks?: TaskExternalLink[];
+
+  /** Tags assigned to this task, when provided by the server. */
+  tags?: TaskTag[];
 
   /** Timestamp when the task was created */
   createdAt: Date;
@@ -240,6 +258,9 @@ export interface TaskFilterInput {
 
   /** Search by title (case-insensitive partial match) */
   titleSearch?: string;
+
+  /** Only include tasks with every listed tag. */
+  tagIds?: string[];
 
   /** Sort by field (default: position) */
   sortBy?: TaskSortBy;

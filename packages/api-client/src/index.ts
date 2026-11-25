@@ -58,6 +58,7 @@ export { createAuthApi, type AuthApi };
 // Tasks API
 import { createTasksApi, type TasksApi, type TasksListResponse } from "./tasks.js";
 export { createTasksApi, type TasksApi, type TasksListResponse };
+import { createTagsApi } from "./tags.js";
 
 // Subtasks API
 import { createSubtasksApi, type SubtasksApi } from "./subtasks.js";
@@ -188,6 +189,7 @@ export function createApi(config: ApiClientConfig) {
     auth: createAuthApi(client),
     /** Tasks API methods */
     tasks: createTasksApi(client),
+    tags: createTagsApi(client),
     /** Subtasks API methods */
     subtasks: createSubtasksApi(client),
     /** Time blocks API methods */

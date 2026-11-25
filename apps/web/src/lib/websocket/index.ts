@@ -8,6 +8,7 @@
 export type WebSocketEventType =
   | "task:created"
   | "task:updated"
+  | "tags:changed"
   | "task:deleted"
   | "task:completed"
   | "task:reordered"

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { isDesktop } from "@/lib/desktop";
-import { checkForUpdate, downloadAndInstallUpdate } from "@/lib/updater";
+import { checkForUpdate, downloadAndInstallUpdate, supportsDesktopUpdates } from "@/lib/updater";
 
 /**
  * Last-resort error screen for the router and the root error boundary.
@@ -182,7 +182,7 @@ export function AppErrorScreen({ error }: { error: unknown }) {
           <button type="button" className={secondary} onClick={resetAndReload}>
             Reset local data
           </button>
-          {desktop && (
+          {supportsDesktopUpdates() && (
             <button
               type="button"
               className={secondary}

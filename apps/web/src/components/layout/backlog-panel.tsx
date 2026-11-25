@@ -8,7 +8,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "@open-sunsama/types";
-import { useTasks, useCompleteTask } from "@/hooks/useTasks";
+import { useCompleteTask } from "@/hooks/useTasks";
+import { useTasksWithTagFilter } from "@/hooks/useTags";
+import { TagToolbar } from "@/components/tags/tag-toolbar";
 import { TaskCardContent } from "@/components/kanban/task-card-content";
 import { TaskContextMenu } from "@/components/kanban/task-context-menu";
 import { useTasksDnd } from "@/lib/dnd/tasks-dnd-context";
@@ -26,13 +28,14 @@ export function BacklogPanel({ className }: { className?: string }) {
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
   const [isCleanupOpen, setIsCleanupOpen] = React.useState(false);
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
+  const [tagIds, setTagIds] = React.useState<string[]>([]);
 
   // Use high limit to ensure we get all backlog tasks (API default is 50)
   const BACKLOG_LIMIT = 500;
-  const { data: tasks, isLoading } = useTasks({
+  const { data: tasks, isLoading, isError } = useTasksWithTagFilter({
     backlog: true,
     limit: BACKLOG_LIMIT,
-  });
+  }, tagIds);
   const { activeTask, isDragging } = useTasksDnd();
 
   // If we hit exactly the limit, there may be more tasks than shown
@@ -41,6 +44,7 @@ export function BacklogPanel({ className }: { className?: string }) {
   // Make backlog a drop target for unscheduling tasks
   const { setNodeRef, isOver } = useDroppable({
     id: "backlog",
+    disabled: tagIds.length > 0,
     data: {
       type: "column",
       date: null, // null = unscheduled/backlog
@@ -91,6 +95,7 @@ export function BacklogPanel({ className }: { className?: string }) {
           )}
         </div>
         <div className="flex items-center gap-0.5">
+          <TagToolbar backlog selected={tagIds} onChange={setTagIds} />
           {pendingTasks.length > 0 && (
             <Button
               variant="ghost"
@@ -117,7 +122,9 @@ export function BacklogPanel({ className }: { className?: string }) {
       {/* Task List */}
       <ScrollArea className="flex-1">
         <div className="space-y-2 px-2 pb-3">
-          {isLoading ? (
+          {isError ? (
+            <p role="alert" className="p-3 text-center text-xs text-destructive">Could not load backlog tasks.</p>
+          ) : isLoading ? (
             <div className="space-y-2 p-1">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full rounded-md" />
@@ -126,11 +133,11 @@ export function BacklogPanel({ className }: { className?: string }) {
           ) : pendingTasks.length === 0 && completedTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-sm text-muted-foreground">
-                No unscheduled tasks
+                {tagIds.length ? "No matching tasks" : "No unscheduled tasks"}
               </p>
-              <p className="text-xs text-muted-foreground/70 mt-1">
+              {!tagIds.length && <p className="text-xs text-muted-foreground/70 mt-1">
                 Drag a card here to take it off its day
-              </p>
+              </p>}
             </div>
           ) : (
             <>
@@ -142,6 +149,7 @@ export function BacklogPanel({ className }: { className?: string }) {
                   <SortableBacklogTaskCard
                     key={task.id}
                     task={task}
+                    dragDisabled={tagIds.length > 0}
                     onSelect={() => setSelectedTask(task)}
                   />
                 ))}
@@ -199,6 +207,7 @@ export function BacklogPanel({ className }: { className?: string }) {
 interface SortableBacklogTaskCardProps {
   task: Task;
   onSelect: () => void;
+  dragDisabled: boolean;
 }
 
 /**
@@ -210,6 +219,7 @@ interface SortableBacklogTaskCardProps {
 function SortableBacklogTaskCard({
   task,
   onSelect,
+  dragDisabled,
 }: SortableBacklogTaskCardProps) {
   const completeTask = useCompleteTask();
   const {
@@ -224,6 +234,7 @@ function SortableBacklogTaskCard({
     index,
   } = useSortable({
     id: task.id,
+    disabled: dragDisabled ? { draggable: true, droppable: true } : undefined,
     data: {
       type: "task",
       task,

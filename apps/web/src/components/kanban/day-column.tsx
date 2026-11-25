@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import type { Task } from "@open-sunsama/types";
-import { useTasks } from "@/hooks/useTasks";
+import { useTasksWithTagFilter } from "@/hooks/useTags";
 import { useTimeBlocks } from "@/hooks/useTimeBlocks";
 import { useCalendarEvents } from "@/hooks/useCalendars";
 import { useAuth } from "@/hooks/useAuth";
@@ -46,11 +46,14 @@ interface DayColumnProps {
   sortBy?: SortOption;
   /** Case-insensitive substring filter on title + notes; "" shows everything. */
   searchQuery?: string;
+  tagIds?: string[];
   /** Fill the parent's width (the phone board shows one day per screen). */
   fill?: boolean;
   /** The single, wider column of the desktop Today view. */
   wide?: boolean;
 }
+
+const noTags: string[] = [];
 
 /**
  * Linear-style day column with clean header and task list.
@@ -62,6 +65,7 @@ export function DayColumn({
   onDateClick,
   sortBy = "position",
   searchQuery = "",
+  tagIds = noTags,
   fill = false,
   wide = false,
 }: DayColumnProps) {
@@ -71,7 +75,7 @@ export function DayColumn({
     isLoading,
     isError,
     refetch,
-  } = useTasks({ scheduledDate: dateString, limit: 200 });
+  } = useTasksWithTagFilter({ scheduledDate: dateString, limit: 200 }, tagIds);
   const { activeTask, activeOverColumn, isDragging } = useTasksDnd();
 
   // A task's time block is its place on the calendar; the card shows the
@@ -90,6 +94,7 @@ export function DayColumn({
 
   const { setNodeRef, isOver: isOverDroppable } = useDroppable({
     id: `day-${dateString}`,
+    disabled: tagIds.length > 0,
     data: {
       type: "column",
       date: dateString,
@@ -99,7 +104,7 @@ export function DayColumn({
   const today = isToday(date);
   const yesterday = isYesterday(date);
   const pastDay = isPast(date) && !today && !yesterday;
-  const isDropTarget = isOverDroppable || activeOverColumn === dateString;
+  const isDropTarget = !tagIds.length && (isOverDroppable || activeOverColumn === dateString);
   const activeTaskId = activeTask?.id;
 
   // Sort function based on sortBy with direction support
@@ -368,6 +373,9 @@ export function DayColumn({
             </div>
           ) : (
             <>
+              {tagIds.length > 0 && !totalTasks && (
+                <p className="py-5 text-center text-xs text-muted-foreground">No matching tasks</p>
+              )}
               {/* Pending Tasks with sortable context for reordering */}
               <SortableContext
                 items={taskIds}
@@ -379,6 +387,7 @@ export function DayColumn({
                     task={task}
                     onSelect={onSelectTask}
                     isDragging={activeTaskId === task.id}
+                    dragDisabled={tagIds.length > 0}
                     scheduledTime={
                       blockStartByTaskId.get(task.id) ??
                       projectedStartByTaskId.get(task.id) ??

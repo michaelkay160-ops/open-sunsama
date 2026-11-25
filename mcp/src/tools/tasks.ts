@@ -32,6 +32,10 @@ function formatTask(task: Task): string {
     lines.push(`Notes: ${task.notes}`);
   }
 
+  if (task.tags?.length) {
+    lines.push(`Tags: ${task.tags.map((tag) => `${tag.name} (${tag.id})`).join(", ")}`);
+  }
+
   if (task.completedAt) {
     lines.push(`Completed At: ${task.completedAt}`);
   }
@@ -54,7 +58,8 @@ function formatTaskList(tasks: Task[]): string {
     .map((task, index) => {
       const status = task.completedAt ? "[x]" : "[ ]";
       const scheduled = task.scheduledDate ?? "Backlog";
-      return `${index + 1}. ${status} [${task.priority}] ${task.title}\n   ID: ${task.id} | Scheduled: ${scheduled}`;
+      const tags = task.tags?.length ? ` | Tags: ${task.tags.map((tag) => tag.name).join(", ")}` : "";
+      return `${index + 1}. ${status} [${task.priority}] ${task.title}\n   ID: ${task.id} | Scheduled: ${scheduled}${tags}`;
     })
     .join("\n\n");
 }
@@ -129,6 +134,8 @@ Pagination: Use "page" and "limit" for large result sets.`,
         .describe(
           "If true, only return tasks without a scheduled date (backlog tasks)."
         ),
+      tagIds: z.array(z.uuid()).min(1).max(50).optional()
+        .describe("Only return tasks with every listed tag. Use list_tags to discover IDs."),
       sortBy: z
         .enum(["priority", "position", "createdAt"])
         .optional()
@@ -155,6 +162,7 @@ Pagination: Use "page" and "limit" for large result sets.`,
           to: input.to,
           completed: input.completed,
           backlog: input.backlog,
+          tagIds: input.tagIds,
           sortBy: input.sortBy,
           page: input.page,
           limit: input.limit,

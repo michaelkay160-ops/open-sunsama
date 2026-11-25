@@ -72,6 +72,7 @@ export function KanbanBoard({
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const [sortBy, onSortChange] = useSortPreference();
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [tagIds, setTagIds] = React.useState<string[]>([]);
   const { isDragging } = useTasksDnd();
 
   // Use the kanban dates hook for date management and navigation
@@ -186,6 +187,8 @@ export function KanbanBoard({
           onSortChange={onSortChange}
           searchQuery={searchQuery}
           onSearchQueryChange={setSearchQuery}
+          tagIds={tagIds}
+          onTagsChange={setTagIds}
         />
 
         {isDay ? (
@@ -199,6 +202,7 @@ export function KanbanBoard({
               onSelectTask={setSelectedTask}
               sortBy={sortBy}
               searchQuery={searchQuery}
+              tagIds={tagIds}
               wide
             />
             {dayAside && (
@@ -238,6 +242,7 @@ export function KanbanBoard({
                     onDateClick={navigateToDate}
                     sortBy={sortBy}
                     searchQuery={searchQuery}
+                    tagIds={tagIds}
                   />
                 </div>
               );

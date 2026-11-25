@@ -293,7 +293,7 @@ async function main() {
   check("connected after auth", client.getServerVersion()?.name === "open-sunsama", client.getServerVersion());
 
   const { tools } = await client.listTools();
-  check("lists all 47 tools", tools.length === 47, tools.length);
+  check("lists all 52 tools", tools.length === 52, tools.length);
   check("OAuth grant includes ideas scopes", ["ideas:read", "ideas:write"].every((s) => provider.savedTokens?.scope?.split(" ").includes(s)), provider.savedTokens?.scope);
   check("every Ideas tool declares its OAuth scope", tools.filter((t) => t.name.includes("idea")).length === 23 && tools.filter((t) => t.name.includes("idea")).every((t) => JSON.stringify(t._meta?.securitySchemes).includes("ideas:")));
   check("delete_idea_board is destructive", tools.find((t) => t.name === "delete_idea_board")?.annotations?.destructiveHint === true);
@@ -344,6 +344,23 @@ async function main() {
 
   const listed = await client.callTool({ name: "list_tasks", arguments: { date: today } });
   check("list_tasks sees the new task", JSON.stringify(listed.content).includes("Ship OAuth MCP connector"));
+  const tagResult = await client.callTool({
+    name: "create_tag", arguments: { name: "Release", color: "#2563EB" },
+  });
+  const tagId = tagResult.isError ? undefined : JSON.parse(toolText(tagResult)).id;
+  check("creates a task tag through OAuth", !!tagId, tagResult.content);
+  if (tagId && taskId) {
+    const args = { taskIds: [taskId], tagIds: [tagId], operation: "add" };
+    const assigned = await client.callTool({ name: "assign_task_tags", arguments: args });
+    check("assigns a tag through OAuth", !assigned.isError && JSON.parse(toolText(assigned)).changed === 1);
+    const retried = await client.callTool({ name: "assign_task_tags", arguments: args });
+    check("retries an assignment safely", !retried.isError && JSON.parse(toolText(retried)).changed === 0);
+    const filtered = await client.callTool({ name: "list_tasks", arguments: { date: today, tagIds: [tagId] } });
+    check("filters tasks by tag through OAuth", !filtered.isError && toolText(filtered).includes("Ship OAuth MCP connector"));
+    const removed = await client.callTool({ name: "delete_tag", arguments: { id: tagId } });
+    const taggedTask = await client.callTool({ name: "get_task", arguments: { id: taskId } });
+    check("deleting a tag preserves the task", !removed.isError && !taggedTask.isError && !toolText(taggedTask).includes(tagId));
+  }
   const done = await client.callTool({ name: "complete_task", arguments: { id: taskId } });
   check("complete_task works", !done.isError, done.content);
   const profile = await client.callTool({ name: "get_user_profile", arguments: {} });

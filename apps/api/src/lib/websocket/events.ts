@@ -13,6 +13,7 @@ export type WebSocketEventType =
   | "task:deleted"
   | "task:completed"
   | "task:reordered"
+  | "tags:changed"
   // Task series (recurring tasks) events
   | "task-series:created"
   | "task-series:updated"

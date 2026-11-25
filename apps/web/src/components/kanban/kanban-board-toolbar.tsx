@@ -24,6 +24,7 @@ import { WithShortcut, KeyCaps } from "@/components/ui/with-shortcut";
 import { MonthGrid } from "@/components/ui/month-grid";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SHORTCUTS, formatShortcut } from "@/hooks/useKeyboardShortcuts";
+import { TagToolbar } from "@/components/tags/tag-toolbar";
 
 // Extended sort option that includes direction
 export type SortOption = "position" | "priority-desc" | "priority-asc" | "createdAt-desc" | "createdAt-asc";
@@ -72,6 +73,8 @@ interface KanbanBoardToolbarProps {
   /** Substring filter applied to task titles/notes across the day columns. */
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
+  tagIds: string[];
+  onTagsChange: (ids: string[]) => void;
 }
 
 const VALID_SORT_OPTIONS: SortOption[] = ["position", "priority-desc", "priority-asc", "createdAt-desc", "createdAt-asc"];
@@ -109,6 +112,8 @@ export function KanbanBoardToolbar({
   onSortChange,
   searchQuery,
   onSearchQueryChange,
+  tagIds,
+  onTagsChange,
 }: KanbanBoardToolbarProps) {
   const [goToOpen, setGoToOpen] = React.useState(false);
   const go = (action: () => void) => {
@@ -231,6 +236,7 @@ export function KanbanBoardToolbar({
           onChange={onSearchQueryChange}
           placeholder="Search tasks…"
         />
+        <TagToolbar selected={tagIds} onChange={onTagsChange} />
 
         {/* Sort Dropdown */}
         <DropdownMenu>

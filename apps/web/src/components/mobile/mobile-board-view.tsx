@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ViewSearch } from "@/components/ui";
 import { DayColumn } from "@/components/kanban/day-column";
 import { TaskModal } from "@/components/kanban/task-modal.lazy";
+import { TagToolbar } from "@/components/tags/tag-toolbar";
 import { TasksDndProvider } from "@/lib/dnd/tasks-dnd-context";
 import type { SortOption } from "@/components/kanban/kanban-board-toolbar";
 import {
@@ -42,6 +43,7 @@ export function MobileBoardView({
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const [isComposerOpen, setIsComposerOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [tagIds, setTagIds] = React.useState<string[]>([]);
   const pagerRef = React.useRef<HTMLDivElement>(null);
 
   const selectedString = format(selectedDate, "yyyy-MM-dd");
@@ -63,6 +65,7 @@ export function MobileBoardView({
                 onChange={setSearchQuery}
                 placeholder="Search tasks…"
               />
+              <TagToolbar selected={tagIds} onChange={setTagIds} />
               {!searchQuery && (
                 <MobileViewControls
                   viewMode={viewMode}
@@ -99,6 +102,7 @@ export function MobileBoardView({
                   onSelectTask={setSelectedTask}
                   sortBy={sortBy}
                   searchQuery={searchQuery}
+                  tagIds={tagIds}
                   fill
                 />
               </div>
